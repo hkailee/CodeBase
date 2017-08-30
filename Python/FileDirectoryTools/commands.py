@@ -14,7 +14,8 @@ def processLine(line):                  # define a function
     else:
         raise UnknownCommand(line)
 
-filename = 'data.txt'
-if len(argv) == 2:
-    filename = argv[1]                  # allow filename cmd arg
-scanner(filename, processLine)          # start the scanner
+if __name__ == '__main__':
+    filename = 'data.txt'
+    if len(argv) == 2:
+        filename = argv[1]                  # allow filename cmd arg
+    scanner(filename, processLine)          # start the scanner
