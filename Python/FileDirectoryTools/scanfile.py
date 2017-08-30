@@ -7,8 +7,22 @@ def scanner1 (name, function):
         function(line)                  # call a function object
     file.close()
 
+
+# The following are recommended for higher speed using for loop than the above while loop
+
 ########## Second scanner ##########
-# Recommended for higher speed using for loop than the above while loop
 def scanner2(name, function):
     for line in open(name, 'r'):        # scan line-by-line
         function(line)                  # call a function
+
+########## Third scanner ##########
+def scanner3(name, function):
+    list(map(function, open(name, 'r')))
+
+########## Third scanner ##########
+def scanner4(name, function):
+    [function(line) for line in open(name, 'r')]
+
+########## Third scanner ##########
+def scanner5(name, function):
+    list(function(line) for line in open(name,'r'))
