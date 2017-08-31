@@ -1,3 +1,5 @@
+#!/usr/local/bin/python3
+
 """
 fork basic: start 5 copies of this program running in parallel with
 the original; each copy counts up to 5 on the same stdout stream--forks
