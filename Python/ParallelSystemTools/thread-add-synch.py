@@ -1,7 +1,7 @@
 #!/usr/local/bin/python3
 
 """
-print 200 each teime, because shared resource access synchronized
+print 200 each time, because shared resource access synchronized
 """
 
 import threading, time
