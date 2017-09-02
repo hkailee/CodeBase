@@ -1,27 +1,28 @@
 #!/usr/local/bin/python3
 
 """
-uses simple shared global data (not mutexes) to know when threads
-are done in parent/main thread; threads share list but not its items,
-assumes list won't move in memory once it has been created initially
+passes in mutex object shared by all threads instead of globals;
+use with context manager statement for auto acquire/release;
+sleep calls added to aviod busy loops and simulate real work
 """
 
-import _thread as thread
+import _thread as thread, time
 
 stdoutmutex = thread.allocate_lock()
-exitmutexes = [False] * 10
+numthreads = 5
+exitmutexes = [thread.allocate_lock() for i in range(numthreads)]
 
-def counter(myID, count):
+def counter(myID, count, mutex):            # shared object passed in
     for i in range(count):
-        stdoutmutex.acquire()
-        print('[%s] => %s' % (myID, i))
-        stdoutmutex.release()
-    exitmutexes[myID] = True               # singal main thread
+        time.sleep(1 / (myID+1))            # diff fractions of second
+        with mutex:                         # auto acquire/release: with
+            print('[%s] => %s' % (myID, i))
+    exitmutexes[myID].acquire()              # global: single main thread
 
-for i in range(10):                              # spawn 10 threads
-    thread.start_new_thread(counter, (i, 100))    # each thread loops 100 times.
+for i in range(numthreads):                              # spawn 5 threads
+    thread.start_new_thread(counter, (i, 5, stdoutmutex))    # each thread loops 5 times.
 
-while False in exitmutexes:
-    pass
+while not all(mutex.locked() for mutex in exitmutexes):
+    time.sleep(0.25)
 
 print('Main thread exiting.')
