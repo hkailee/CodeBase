@@ -1,7 +1,8 @@
 #!/usr/local/bin/python3
 
 """
-print different results on different runs
+print different results on different runs on Windows 7 with Python 3.1,
+but not on MacOS X with Python 3.5
 """
 
 import threading, time
