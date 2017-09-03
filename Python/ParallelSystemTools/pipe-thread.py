@@ -1,6 +1,10 @@
 #!/usr/local/bin/python3
 
-import os, time
+"""
+anonymous pipes and threads, not processes: this version works on Windows
+"""
+
+import os, time, threading
 
 def child(pipeout):
     zzz = 0
@@ -10,12 +14,11 @@ def child(pipeout):
         os.write(pipeout, msg)              # send to parent
         zzz = (zzz + 1) % 5                   # goto 0 after 4
 
-def parent():
-    pipein, pipeout = os.pipe()             # make 2-ended pipe
-    if os.fork() == 0:                      # copy this process
-        child(pipeout)                      # in copy, run child
-    else:                                   # in parent, listen to pipe
-        while True:
-            line = os.read(pipein, 32)      # blocks until data sent
-            print('Parent %d got [%s] at %s' % (os.getpid(), line, time.time()))
-parent()
+def parent(pipein):
+    while True:
+        line = os.read(pipein, 32)      # blocks until data sent
+        print('Parent %d got [%s] at %s' % (os.getpid(), line, time.time()))
+
+pipein, pipeout = os.pipe()             # make 2-ended pipe
+threading.Thread(target=child, args=(pipeout,)).start()
+parent(pipein)
