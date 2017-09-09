@@ -1,39 +1,21 @@
 #!/usr/local/bin/python3
 
 """
-sockets for cross-task communication: start threads to communicate over sockets;
-independent programs can too, because sockets are system-wide, much like fifos;
-see the GUI and Internet parts of the book for more realistic socket use cases;
-some socket servers
+same socket, but talk between independent programs too, not just threads;
+server here runs in a process and serves both process and thread clients;
+socket are machine-global, much like fifos: don't require shared memory
 """
 
-from socket import socket, AF_INET, SOCK_STREAM     # portable socket api
+import sys, os
+from threading import Thread
 
-port = 50008                    # port number identifies socket on machine
-host = 'localhost'              # server and client run on same local machine here
+from socket_preview import server, client   # both use same port number
 
-def server():
-    sock = socket(AF_INET, SOCK_STREAM) # ip addresses tcp connection
-    sock.bind(('', port))               # bind to port on this machine
-    sock.listen(5)                      # allow up to 5 pending clients
-    while True:
-        conn, addr = sock.accept()      # wait for client to connect
-        data = conn.recv(1024)          # read bytes data from this client
-        reply = 'server got: [%s]' % data # conn is a new connected socket
-        conn.send(reply.encode())       # send bytes reply back to client
-
-def client(name):
-    sock = socket(AF_INET, SOCK_STREAM)
-    sock.connect((host, port))          # connect to a socket port
-    sock.send(name.encode())            # send bytes data to listener
-    reply = sock.recv(1024)             # receive bytes data from listener
-    sock.close()                        # up to 1024 bytes in message
-    print('client got: [%s]' % reply)
-
-if __name__ == '__main__':
-    from threading import Thread
-    sthread = Thread(target=server)
-    sthread.daemon = True
-    sthread.start()
+mode = int(sys.argv[1])
+if mode == 1:                               # run server in this process
+    server()
+elif mode == 2:                             # run client in this process
+    client('client:process=%s' % os.getpid())
+else:                                       # run 5 client threads in process
     for i in range(5):
-        Thread(target=client, args=('client%s' % i,)).start()
+        Thread(target=client, args=('client:thread=%s' % i,)).start()
