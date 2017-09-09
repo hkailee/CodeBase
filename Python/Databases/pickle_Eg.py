@@ -1,3 +1,5 @@
+#!/usr/local/bin/python3
+
 """
 super general data formatting and de-formatting tool—pickle converts nearly
 arbitrary Python in-memory objects to and from a single linear string format,

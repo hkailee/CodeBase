@@ -1,3 +1,5 @@
+#!/usr/local/bin/python3
+
 '''
 Be sure to also pass a string 'c' as a second argument when calling dbm.open to
 force Python to create the file if it does not yet exist and to simply open it
