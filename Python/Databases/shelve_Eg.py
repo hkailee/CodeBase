@@ -1,69 +1,49 @@
 #!/usr/local/bin/python3
 
 """
-pickle to/from flat file utilities
+super general data formatting and de-formatting tool—pickle converts nearly
+arbitrary Python in-memory objects to and from a single linear string format,
+suitable for storing in flat files, shipping across network sockets between
+trusted sources, and so on. This conversion from object to string is often
+called serialization—arbitrary data structures in memory are mapped to a
+serial string form; Pickling works on almost any Python datatype—numbers,
+lists, dictionaries, class in- stances, nested structures, and more—and so
+is a general way to store data; Not so cool and suitable for big datasize,
+the entire database will have to be loaded back into memory for query, not
+just the entry that you are interested.
 """
 
-import pickle, io
+import pickle
 
-def saveDbase(filename, object):
-    'save object to file'
-    file = open(filename, 'wb')
-    pickle.dump(object, file)           # pickle to binary file
-    file.close()                        # any file-like object will do
+# Create new database
+table = {'a': [1, 2, 3],
+         'b': ['spam', 'eggs'],
+         'c': {'name':'bob'}}
 
-def loadDbase(filename):
-    'load object from file'
-    file = open(filename, 'rb')
-    object = pickle.load(file)          # unpickle from binary file
-    file.close()                        # re-creates object in memory
-    return object
+mydb = open('dbase', 'wb')
+pickle.dump(table, mydb)
+mydb.close()
 
-# Create myfile database
-L = [0]
-D = {'x':0, 'y':L}
-table = {'A': L, 'B': D}                # L appears twice
-saveDbase('myfile', table)              # serialize to file
-
-# Loading existing myfile database created
-table = loadDbase('myfile')
+# Open existing database and unpickle it to show data
+mydb = open('dbase', 'rb')
+table = pickle.load(mydb)
 print(table)
 
-# The above are just lists, tuples, and dictionaries. How about class instances?
-class Rec:
-    def __init__(self, hours):
-        self.hours = hours
-    def pay(self, rate=50):
-        return self.hours * rate
+# Create database and unpickle
+f = open('temp', 'wb')
+x = ['Hello', ('pickle', 'world')]
+pickle.dump(x, f)
+f.close()
 
-bob = Rec(40)
-pickle.dump(bob, open('bobrec', 'wb'))
+f = open('temp', 'rb')
+y = pickle.load(f)
+print(y)
 
-# Load the bobrec database created above
-rec = pickle.load(open('bobrec', 'rb'))
-print(rec.hours)
-print(rec.pay())
+print(x == y, x is y)
 
 
-# Pickled data may be created in either text or binary protocols; The binary
-# protocol is more efficient but it cannot be readily understood if inspected;
-# By default, storage protocol in python 3 is binary bytes format (protocol = 3);
-# Text format - human readable ASCII format (protocol = 0)
 
-print(pickle.dumps([1, 2, 3]))  # Default protocol is 3
-print(pickle.dumps([1, 2, 3], protocol=0))
 
-# To store/dump onto a database, applying protocol=0 will produce
-# TypeError: must be str, not bytes; But for parsing for bytes streaming
-# or buffering io.bytesIO works
 
-B = io.BytesIO()
-pickle.dump([1, 2, 3], B)
-print(B.getvalue())
-
-# Resetting io.BytesIO, B, each time.
-B = io.BytesIO()
-pickle.dump([1, 2, 3], B, protocol=0)
-print(B.getvalue())
 
 

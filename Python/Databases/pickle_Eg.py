@@ -1,16 +1,15 @@
 #!/usr/local/bin/python3
 
 """
-super general data formatting and de-formatting tool—pickle converts nearly
-arbitrary Python in-memory objects to and from a single linear string format,
-suitable for storing in flat files, shipping across network sockets between
-trusted sources, and so on. This conversion from object to string is often
-called serialization—arbitrary data structures in memory are mapped to a
-serial string form; Pickling works on almost any Python datatype—numbers,
-lists, dictionaries, class in- stances, nested structures, and more—and so
-is a general way to store data; Not so cool and suitable for big datasize,
-the entire database will have to be loaded back into memory for query, not
-just the entry that you are interested.
+Not much of a new topic compared to dbm and pickle earlier, simply a combination
+of the DBM files and object pickling, but with several advantage for big dataset
+(i.e. Analogy of a shelf storing multiple DBM files indexed by keys for retrieval):
+1. To store an in-memory object by key, the shelve module first serializes the
+object to a string with the pickle module, and then it stores that string in a
+DBM file by key with the dbm module.
+2.To fetch an object back by key, the shelve module first loads the object’s
+serialized string by key from a DBM file with the dbm module, and then converts
+it back to the original in-memory object with the pickle module.
 """
 
 import pickle
