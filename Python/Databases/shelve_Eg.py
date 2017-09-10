@@ -10,39 +10,58 @@ DBM file by key with the dbm module.
 2.To fetch an object back by key, the shelve module first loads the object’s
 serialized string by key from a DBM file with the dbm module, and then converts
 it back to the original in-memory object with the pickle module.
+
+Limitation:
+1. keys must be string, i.e not number etc
+2. Objects are unique only within a key
+3. Updates must treat shelves as fetch-modify-store mappings
+4. Concurrent updates are not directly supported
+5. Underlying DBM format portability (i.e. gdbm on Linux not compatible with
+   bsddb on Windows) - Use the OODB (ZODB) system if this is a concern.
 """
 
 import shelve
 
 # Create new database
-table = {'a': [1, 2, 3],
-         'b': ['spam', 'eggs'],
-         'c': {'name':'bob'}}
+dbase = shelve.open('mydbase')
+object1 = ['The', 'bright', ('side', 'of'), ['life']]
+object2 = {'name': 'Brian', 'age': 33, 'motto': object1}
 
-mydb = open('dbase', 'wb')
-pickle.dump(table, mydb)
-mydb.close()
+dbase['brian'] = object2
+dbase['knight'] = {'name':'Knight', 'motto': 'Ni!'}
+dbase.close()
 
-# Open existing database and unpickle it to show data
-mydb = open('dbase', 'rb')
-table = pickle.load(mydb)
-print(table)
+# loading existing database, mydbase
+dbase = shelve.open('mydbase')
+print(len(dbase))
+print(list(dbase.keys()))
+print(dbase['knight'])      # fetch
+for row in dbase.keys():
+    print(row, '=>')
+    for field in dbase[row].keys():
+        print('    ', field, '=', dbase[row][field])
 
-# Create database and unpickle
-f = open('temp', 'wb')
-x = ['Hello', ('pickle', 'world')]
-pickle.dump(x, f)
-f.close()
+# How about storing class instance?
+class Person:
+    def __init__(self, name, job, pay=0):
+        self.name = name
+        self.job = job
+        self.pay = pay          # real instance data
+    def tax(self):
+        return self.pay * 0.07
+    def info(self):
+        return self.name, self.job, self.pay, self.tax()
 
-f = open('temp', 'rb')
-y = pickle.load(f)
-print(y)
+bob = Person('bob', 'psychologist', 70000)
+emily = Person('emily', 'teacher', 40000)
 
-print(x == y, x is y)
+dbase = shelve.open('cast')     # make new shelve
+for obj in (bob, emily):
+    dbase[obj.name] = obj
 
+dbase.close()
 
-
-
-
-
-
+# Reopen the shelve of class instance
+dbase = shelve.open('cast')     # reopen shelve
+print(list(dbase.keys()))
+print(dbase['emily'].tax())     # call: emily's tax
