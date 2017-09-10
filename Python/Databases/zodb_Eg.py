@@ -18,6 +18,8 @@ interface with ZODB—it’s not a simple open call.
 2. Classes are derived from a persistence superclass if you want them to take
 advantage of automatic updates on changes—persistent classes are generally not
 as completely independent of the database as in shelves, though they can be.
+
+Alternative to ZODB is Dulus
 """
 
 from ZODB import FileStorage, DB
