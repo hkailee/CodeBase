@@ -43,3 +43,4 @@ pickle.dump(bob, open('bobrec', 'wb'))
 rec = pickle.load(open('bobrec', 'rb'))
 print(rec.hours)
 print(rec.pay())
+
