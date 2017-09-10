@@ -23,3 +23,12 @@ def loaddb(curs, table, datafile, conn=None, verbose=True):
         conn.commit()
     if verbose:
         print(len(rows), 'rows loaded')
+
+if __name__ == '__main__':
+    import sys
+    dbfile, datafile, table = 'dbase_Sqlite', 'data.txt', 'people'
+    if len(sys.argv) > 1: dbfile = sys.argv[1]
+    if len(sys.argv) > 2: datafile = sys.argv[2]
+    if len(sys.argv) > 3: table = sys.argv[3]
+    conn, curs = login(dbfile)
+    loaddb(curs, table, datafile, conn)
