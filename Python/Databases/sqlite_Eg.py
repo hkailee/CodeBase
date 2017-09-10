@@ -95,4 +95,41 @@ curs.execute('select * from people')
 print(curs.fetchall())
 
 conn.commit()
-conn.close()
+
+# Using table/schema descriptions
+# The 7 values in tuple indicate (name, type_code, display_size, internal_size, precision, scale, null_ok)
+curs.execute('select * from people')
+print(curs.description)
+colnames = [desc[0] for desc in curs.description]
+print(colnames)
+
+for row in curs.fetchall():
+    for name, value in zip(colnames, row):
+        print(name, '\t=>', value)
+    print()
+
+# Record dictionaries construction
+curs.execute('select * from people')
+colnames = [desc[0] for desc in curs.description]
+rowdicts = []
+for row in curs.fetchall():
+    newdict = {}
+    for name, val in zip(colnames, row):
+        newdict[name] = val
+    rowdicts.append(newdict)
+
+for row in rowdicts:
+    print(row)
+
+# More powerful record dictionaries construction in python
+curs.execute('select * from people')
+colnames = [desc[0] for desc in curs.description]
+rowdicts = []
+for row in curs.fetchall():
+    rowdicts.append(dict(zip(colnames, row)))
+print(rowdicts[0])
+
+curs.execute('select * from people')
+colnames = [desc[0] for desc in curs.description]
+rowdicts = [dict(zip(colnames, row)) for row in curs.fetchall()]
+print(rowdicts[0])
