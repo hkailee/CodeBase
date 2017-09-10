@@ -4,7 +4,7 @@
 pickle to/from flat file utilities
 """
 
-import pickle
+import pickle, io
 
 def saveDbase(filename, object):
     'save object to file'
@@ -43,4 +43,27 @@ pickle.dump(bob, open('bobrec', 'wb'))
 rec = pickle.load(open('bobrec', 'rb'))
 print(rec.hours)
 print(rec.pay())
+
+
+# Pickled data may be created in either text or binary protocols; The binary
+# protocol is more efficient but it cannot be readily understood if inspected;
+# By default, storage protocol in python 3 is binary bytes format (protocol = 3);
+# Text format - human readable ASCII format (protocol = 0)
+
+print(pickle.dumps([1, 2, 3]))  # Default protocol is 3
+print(pickle.dumps([1, 2, 3], protocol=0))
+
+# To store/dump onto a database, applying protocol=0 will produce
+# TypeError: must be str, not bytes; But for parsing for bytes streaming
+# or buffering io.bytesIO works
+
+B = io.BytesIO()
+pickle.dump([1, 2, 3], B)
+print(B.getvalue())
+
+# Resetting io.BytesIO, B, each time.
+B = io.BytesIO()
+pickle.dump([1, 2, 3], B, protocol=0)
+print(B.getvalue())
+
 
