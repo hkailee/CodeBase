@@ -8,7 +8,9 @@ trusted sources, and so on. This conversion from object to string is often
 called serialization—arbitrary data structures in memory are mapped to a
 serial string form; Pickling works on almost any Python datatype—numbers,
 lists, dictionaries, class in- stances, nested structures, and more—and so
-is a general way to store data.
+is a general way to store data; Not so cool and suitable for big datasize,
+the entire database will have to be loaded back into memory for query, not
+just the entry that you are interested.
 """
 
 import pickle
