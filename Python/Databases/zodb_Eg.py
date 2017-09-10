@@ -8,52 +8,35 @@ Compared to shelve, this supports:
 3. safe concurrent updates
 4. object decomposition and delayed ('lazy') component fetches based on generated
 object IDs
+5. Automatic caching of objects
+6. compatible with all the platforms (i.e. windows and linux).
+
+Limitations:
+
+1. Accessing the database requires a small amount of extra boilerplate code to
+interface with ZODB—it’s not a simple open call.
+2. Classes are derived from a persistence superclass if you want them to take
+advantage of automatic updates on changes—persistent classes are generally not
+as completely independent of the database as in shelves, though they can be.
 """
 
 from ZODB import FileStorage, DB
 
-# Create new database
-dbase = FileStorage.FileStorage('mydbase')
+# Create new database (Kind of Boilerplate code)
+storage = FileStorage.FileStorage('mydb.fs')
+db = DB(storage)
+connection = db.open()
+root = connection.root()
+
+object1 = (1, 'spam', 4, 'you')
+object2 = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+object3 = {'name': ['Bob', 'Doe'], 'age': 42, 'job': ('dev', 'mgr')}
+
+root['mystr'] = 'spam' * 3
+root['mytuple'] = object1
+root['mylist'] = object2
+root['mydict'] = object3
+
+print(root['mylist'])
 
 
-object1 = ['The', 'bright', ('side', 'of'), ['life']]
-object2 = {'name': 'Brian', 'age': 33, 'motto': object1}
-
-dbase['brian'] = object2
-dbase['knight'] = {'name':'Knight', 'motto': 'Ni!'}
-dbase.close()
-
-# loading existing database, mydbase
-dbase = shelve.open('mydbase')
-print(len(dbase))
-print(list(dbase.keys()))
-print(dbase['knight'])      # fetch
-for row in dbase.keys():
-    print(row, '=>')
-    for field in dbase[row].keys():
-        print('    ', field, '=', dbase[row][field])
-
-# How about storing class instance?
-class Person:
-    def __init__(self, name, job, pay=0):
-        self.name = name
-        self.job = job
-        self.pay = pay          # real instance data
-    def tax(self):
-        return self.pay * 0.07
-    def info(self):
-        return self.name, self.job, self.pay, self.tax()
-
-bob = Person('bob', 'psychologist', 70000)
-emily = Person('emily', 'teacher', 40000)
-
-dbase = shelve.open('cast')     # make new shelve
-for obj in (bob, emily):
-    dbase[obj.name] = obj
-
-dbase.close()
-
-# Reopen the shelve of class instance
-dbase = shelve.open('cast')     # reopen shelve
-print(list(dbase.keys()))
-print(dbase['emily'].tax())     # call: emily's tax
