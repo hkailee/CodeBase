@@ -18,6 +18,10 @@ def login(dbfile):
 def makedb(dbfile, table, columnFeatures):
     #columnFeatures = input("eg: (Column1 char(30), Column2 char(10), Column3 int(4))")
     conn, curs = login(dbfile)
+    try:
+        curs.execute('drop table ' + table)
+    except:
+        print('database table did not exist')
     command = 'create table %s %s' % (table, columnFeatures)
     curs.execute(command)
     conn.commit()
