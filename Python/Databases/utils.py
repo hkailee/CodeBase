@@ -3,13 +3,28 @@
 import sqlite3
 
 ##############################################
-### Load Data
+### Login to database
 ##############################################
 
 def login(dbfile):
     conn = sqlite3.connect(dbfile)  # create or open db file
     curs = conn.cursor()
     return conn, curs
+
+##############################################
+### Create new database
+##############################################
+
+def makedb(dbfile, table, columnFeatures):
+    columnFeatures = input("eg: (Column1 char(30), Column2 char(10), Column3 int(4))")
+    conn, curs = login(dbfile)
+    command = 'create table %s %s' % table % columnFeatures
+    curs.execute(command)
+    conn.commit()
+
+##############################################
+### Load Data
+##############################################
 
 def loaddb(curs, table, datafile, conn=None, verbose=True):
     file = open(datafile)                               # x,x,x\nx,x,x\n
